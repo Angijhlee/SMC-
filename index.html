@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>퇴원 안심 케어</title>
+
+  <style>
+:root{
+  --bg1:#e0f2ff;
+  --bg2:#dbeafe;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --line: rgba(15,23,42,.10);
+  --shadow: 0 10px 30px rgba(0,0,0,.08);
+  --accent:#3b82f6;
+  --radius: 22px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+  color: var(--text);
+  background: linear-gradient(180deg, var(--bg1), var(--bg2));
+  min-height:100vh;
+}
+.wrap{
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 18px 14px 32px;
+}
+header{
+  background: rgba(255,255,255,.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59,130,246,.15);
+  border-radius: 22px;
+  padding: 16px 14px;
+  box-shadow: 0 8px 24px rgba(59,130,246,.12);
+}
+h1{ margin:0; font-size: 20px; font-weight: 900; }
+.sub{ margin:8px 0 0; color: var(--muted); font-size: 13px; }
+
+.search{
+  margin-top: 12px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding: 12px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.85);
+}
+.search input{
+  width:100%;
+  border:none;
+  outline:none;
+  background:transparent;
+  font-size: 15px;
+}
+
+.list{
+  margin-top: 14px;
+  display:flex;
+  flex-direction: row;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.card{
+  flex: 0 0 260px;
+  width: 260px;
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 0 0 18px;
+  box-shadow: 0 8px 24px rgba(59,130,246,.12);
+  cursor:pointer;
+  overflow:hidden;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(59,130,246,.18);
+}
+.cardImg{
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: #fff;
+}
+.cardTitle{
+  margin: 14px 16px 0;
+  font-size: 18px;
+  font-weight: 900;
+}
+.cardHint{
+  margin: 6px 16px 0;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.empty{
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px dashed rgba(15,23,42,.18);
+  background: rgba(255,255,255,.6);
+  color: var(--muted);
+  font-size: 14px;
+  display:none;
+}
+
+/* 모달 */
+.back{
+  position:fixed; inset:0;
+  background: rgba(15,23,42,.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding: 12px;
+  z-index: 50;
+}
+.sheet{
+  width:min(480px, 100%);
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  overflow:hidden;
+}
+.sheetHead{ padding: 20px 20px 0; }
+.sheetQ{ margin:0; font-size: 22px; font-weight: 900; }
+.sheetBody{ padding: 16px 20px 24px; }
+.sheetImg{
+  width: 100%;
+  max-width: 360px;
+  border-radius: 18px;
+  margin: 0 auto 16px;
+  display:block;
+}
+.sheetA{
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+.bigClose{
+  width: 100%;
+  border: none;
+  padding: 16px 14px;
+  font-size: 16px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  cursor:pointer;
+}
+
+/* 별점 */
+.feedback{
+  margin-top: 20px;
+  background: rgba(255,255,255,.85);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  padding: 14px 14px;
+}
+.fbTitle{ margin: 0; font-size: 16px; font-weight: 900; }
+.fbSub{ margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+
+.stars{
+  margin-top: 12px;
+  display:flex;
+  gap: 8px;
+  width: 100%;
+}
+.starBtn{
+  flex: 1;
+  min-width: 0;
+  border: 1px solid rgba(15,23,42,.12);
+  background: rgba(255,255,255,.92);
+  border-radius: 14px;
+  padding: 12px 8px;
+  font-weight: 900;
+  font-size: 13px;
+  cursor:pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.starsOnly{ font-size: 12px; line-height: 1.1; }
+.label{ font-size: 12px; margin-top: 4px; color: var(--muted); }
+.starBtn[aria-pressed="true"]{
+  border-color: rgba(96,165,250,.45);
+  box-shadow: 0 8px 20px rgba(96,165,250,.18);
+  background: rgba(96,165,250,.10);
+  color: #2563eb;
+}
+textarea{
+  margin-top: 12px;
+  width:100%;
+  min-height: 96px;
+  resize: vertical;
+  border-radius: 16px;
+  border: 1px solid rgba(15,23,42,.12);
+  padding: 12px 12px;
+  font-size: 14px;
+}
+.submitRow{
+  margin-top: 12px;
+  display:flex;
+  gap: 10px;
+}
+.submitBtn{
+  flex: 1;
+  border:none;
+  border-radius: 16px;
+  padding: 14px 12px;
+  font-weight: 950;
+  font-size: 15px;
+  color:#fff;
+  background: linear-gradient(135deg, #10b981, #22c55e);
+  cursor:pointer;
+}
+.toast{
+  margin-top: 10px;
+  display:none;
+  padding: 12px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(16,185,129,.25);
+  background: rgba(16,185,129,.08);
+  color: rgba(15,23,42,.90);
+  font-size: 13px;
+}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1>퇴원 안심 케어</h1>
+      <p class="sub">궁금한 질문을 눌러 답변을 확인하세요. (검색도 가능해요)</p>
+
+      <div class="search">
+        <span>🔎</span>
+        <input id="search" type="search" placeholder="예) 열, 통증, 음식, 상처…" autocomplete="off" />
+      </div>
+    </header>
+
+    <section id="list" class="list"></section>
+    <div id="empty" class="empty">검색 결과가 없어요. 다른 단어로 검색해보세요.</div>
+
+    <!-- 별점 -->
+    <section id="feedbackSection" class="feedback">
+      <p class="fbTitle">만족도 평가</p>
+      <p class="fbSub">이 안내가 도움이 되었나요? 별점과 의견을 남겨주세요.</p>
+
+      <!-- 페이지 이동 없이 제출용 -->
+      <iframe name="hidden_iframe" style="display:none;"></iframe>
+
+      <form id="fbForm"
+            action="https://script.google.com/macros/s/AKfycbzzaXwkixF4TW3xmG2s8H_3Lpx4RjeqWNSoEIIfvJhLPEjV7CCxe8sSRPRWVHQmiw5j/exec"
+            method="POST"
+            target="hidden_iframe">
+
+        <input type="hidden" id="fb_rating" name="rating" />
+        <input type="hidden" id="fb_timestamp" name="timestamp" />
+        <input type="hidden" id="fb_page" name="page" />
+        <input type="hidden" id="fb_ua" name="userAgent" />
+        <input type="hidden" id="fb_token" name="token" value="asdf" />
+
+        <div class="stars">
+          <button class="starBtn" type="button" data-v="1">
+            <span class="starsOnly">★</span>
+            <span class="label">전혀<br>만족하지<br>않는다</span>
+          </button>
+          <button class="starBtn" type="button" data-v="2">
+            <span class="starsOnly">★★</span>
+            <span class="label">만족하지<br>않는다</span>
+          </button>
+          <button class="starBtn" type="button" data-v="3">
+            <span class="starsOnly">★★★</span>
+            <span class="label">보통이다</span>
+          </button>
+          <button class="starBtn" type="button" data-v="4">
+            <span class="starsOnly">★★★★</span>
+            <span class="label">만족한다</span>
+          </button>
+          <button class="starBtn" type="button" data-v="5">
+            <span class="starsOnly">★★★★★</span>
+            <span class="label">매우<br>만족한다</span>
+          </button>
+        </div>
+
+        <textarea id="fb_comment" name="comment" placeholder="자유롭게 의견을 적어주세요"></textarea>
+
+        <div class="submitRow">
+          <button class="submitBtn" type="submit">의견 보내기</button>
+        </div>
+
+        <div id="toast" class="toast">제출이 완료되었어요. 감사합니다!</div>
+      </form>
+    </section>
+  </div>
+
+  <!-- 모달 -->
+  <div id="back" class="back">
+    <div class="sheet">
+      <div class="sheetHead">
+        <p id="mQ" class="sheetQ"></p>
+      </div>
+      <div class="sheetBody">
+        <img id="mImg" class="sheetImg" src="" alt="">
+        <p id="mA" class="sheetA"></p>
+      </div>
+      <button id="close" class="bigClose">닫기</button>
+    </div>
+  </div>
+
+  <script>
+const items = [
+  { id:"q1", icon:"🤢", img:"img/nausea.png", q:"식사 후 더부룩하고 울렁거려요.",a:"증상 발생 시 금식을 하고 천천히 걸어본 후 증상이 완화되면 물-미음-죽 순서로 섭취합니다. 증상이 더 심해질 경우 병원에 방문합니다." },
+  { id:"q2", icon:"🍽️", img:"img/food.png", q:"집에 가서 먹으면 안되는 음식이 있나요?", a:"수술 후 2주 정도는 맵고 자극적인 음식, 기름진 음식을 피하고 죽을 소량씩 천천히 섭취하는 것이 좋습니다. 2주가량 죽 섭취 후 불편함이 없으면 진밥→밥 순서로 진행하세요. 한약, 홍삼, 즙, 액기스, 우려낸 물 등은 간 손상의 위험이 있어 섭취하지 마세요." },
+  { id:"q3", icon:"🤕", img:"img/pain.png", q:"집에서 아프면 어떻게 하나요?", a:"처방된 경구진통제를 복용합니다. 복용 1-2시간 후에도 통증이 더 심해지거나 새로운 양상의 통증이 발생한 경우 근처 병원이나 응급실에 내원하세요." },
+  { id:"q4", icon:"⏳", img:"img/pain1.png", q:"언제까지 아픈가요?", a:"통증은 개인 차가 있어 수주 동안 지속될 수 있습니다. 외래 진료 시 교수님과 상의하세요." },
+  { id:"q5", icon:"🌡️", img:"img/fever.png", q:"열이 나요.", a:"38도 이상의 고열 시 가까운 응급실을 방문하여 진료를 받습니다." },
+  { id:"q6", icon:"🩸", img:"img/hematemesis.png", q:"피를 토했어요 / 혈변을 봐요.", a:"피를 토하거나 검은색 변 또는 선명한 혈변이 보이면 응급 상황일 수 있으니 즉시 응급실로 내원해 주세요." },
+  { id:"q7", icon:"🧬", img:"img/chemo1.png", q:"항암치료는 언제, 어떻게 하나요?", a:"암의 종류와 병기에 따라 항암치료 과정이 상이합니다. 외래에서 조직검사 결과 확인 후 필요한 경우 혈액종양내과 교수님과 상의하여 결정합니다." },
+  { id:"q8", icon:"💰", img:"img/money.png", q:"치료비 지원을 받을 수 있나요?", a:"조직검사 결과 확인 후 국가 기준에 해당하는 경우 산정특례 여부가 결정됩니다. 필요 시 원무과에 문의하세요." },
+  { id:"q9", icon:"🏥", img:"img/hospital.png", q:"근처 병원에 입원해도 되나요?", a:"소견서나 진단서를 지참하여 근처 병원에서 상의 후 입원할 수 있습니다." },
+  { id:"q10", icon:"🩹", img:"img/itching.png", q:"상처 부위가 가려워요.", a:"정상적인 과정입니다. 상처가 치유되고 새로운 피부조직이 만들어지는 과정에서 가려움이 있을 수 있습니다. 상처가 덧나지 않게 긁지 마세요." },
+  { id:"q11", icon:"🚽", img:"img/constipation.png", q:"대변이 잘 안 나와요.", a:"수술 후 흔하게 겪을 수 있는 증상입니다. 대부분 시간이 지나면서 호전됩니다. 수분 섭취, 걷기 운동 등을 해주세요. 복부 팽만과 심한 복통이 있을 경우 병원이나 응급실에 방문하세요." },
+  { id:"q12", icon:"🚗", img:"img/Drive.png", q:"운전은 해도 되나요?", a:"통증이 거의 사라지고 몸이 충분히 회복되었다고 느껴질 때 운전을 시작하는 것이 좋습니다." },
+  { id:"q13", icon:"☕", img:"img/coffee.png", q:"커피는 마셔도 되나요?", a:"커피는 마셔도 괜찮습니다. 다만 혈당 조절이 잘 안되는 경우 믹스 커피는 피해주세요." }
+];
+
+const $list = document.getElementById("list");
+const $empty = document.getElementById("empty");
+const $search = document.getElementById("search");
+const $back = document.getElementById("back");
+const $close = document.getElementById("close");
+const $mQ = document.getElementById("mQ");
+const $mA = document.getElementById("mA");
+const mImg = document.getElementById("mImg");
+
+function render(list){
+  $list.innerHTML = "";
+  if(list.length === 0){
+    $empty.style.display = "block";
+    return;
+  }
+  $empty.style.display = "none";
+
+  list.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      ${item.img ? `<img class="cardImg" src="${item.img}" alt="">` : ""}
+      <p class="cardTitle">${item.q}</p>
+      <p class="cardHint">탭해서 자세히 보기 →</p>
+    `;
+    card.onclick = () => openSheet(item);
+    $list.appendChild(card);
+  });
+}
+
+function openSheet(item){
+  $mQ.textContent = item.q;
+  $mA.textContent = item.a;
+
+  if(item.img){
+    mImg.src = item.img;
+    mImg.style.display = "block";
+  } else {
+    mImg.style.display = "none";
+  }
+  $back.style.display = "flex";
+}
+
+$close.onclick = () => $back.style.display = "none";
+$back.onclick = (e) => { if(e.target === $back) $back.style.display = "none"; };
+
+$search.oninput = () => {
+  const q = $search.value.trim().toLowerCase();
+  const filtered = items.filter(it => (it.q + it.a).toLowerCase().includes(q));
+  render(filtered);
+};
+
+render(items);
+
+/* 별점 기능 */
+document.querySelectorAll(".starBtn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const v = btn.getAttribute("data-v");
+    document.getElementById("fb_rating").value = v;
+
+    document.querySelectorAll(".starBtn").forEach(b => b.setAttribute("aria-pressed","false"));
+    btn.setAttribute("aria-pressed","true");
+  });
+});
+
+/* 제출 -> Apps Script로 전송 + 토스트 */
+document.getElementById("fbForm").addEventListener("submit", (e) => {
+  const rating = document.getElementById("fb_rating").value;
+
+  if(!rating){
+    e.preventDefault();
+    alert("별점을 선택해주세요!");
+    return;
+  }
+
+  document.getElementById("fb_timestamp").value = new Date().toISOString();
+  document.getElementById("fb_page").value = location.href;
+  document.getElementById("fb_ua").value = navigator.userAgent;
+
+  document.getElementById("toast").style.display = "block";
+
+  const btn = document.querySelector(".submitBtn");
+  btn.disabled = true;
+  btn.style.opacity = "0.7";
+
+  setTimeout(() => {
+    document.getElementById("fb_comment").value = "";
+    document.getElementById("fb_rating").value = "";
+    document.querySelectorAll(".starBtn").forEach(b => b.setAttribute("aria-pressed","false"));
+    btn.disabled = false;
+    btn.style.opacity = "1";
+  }, 1500);
+});
+  </script>
+</body>
+</html>
